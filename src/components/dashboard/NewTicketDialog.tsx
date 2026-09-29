@@ -117,7 +117,7 @@ export function NewTicketDialog({
           await uploadTicketFile({
             ticketId: ticket.id,
             ticketNumber: safeNumber,
-            file: files[i].file,
+            file: files[i]!.file,
             userId: session.userId,
             userName: session.name,
           });
