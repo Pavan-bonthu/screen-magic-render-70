@@ -14,16 +14,196 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      ticket_activity: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string
+          created_at: string
+          detail: string
+          id: string
+          ticket_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name?: string
+          created_at?: string
+          detail?: string
+          id?: string
+          ticket_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string
+          created_at?: string
+          detail?: string
+          id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_activity_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_files: {
+        Row: {
+          created_at: string
+          file_name: string
+          id: string
+          size_bytes: number
+          storage_path: string
+          ticket_id: string
+          uploaded_by: string
+          uploaded_by_name: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          id?: string
+          size_bytes?: number
+          storage_path: string
+          ticket_id: string
+          uploaded_by: string
+          uploaded_by_name?: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          id?: string
+          size_bytes?: number
+          storage_path?: string
+          ticket_id?: string
+          uploaded_by?: string
+          uploaded_by_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_files_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          algo_strategy: string | null
+          analysis_notes: string | null
+          client_name: string
+          closed_at: string | null
+          closed_by: string | null
+          closed_by_name: string | null
+          created_at: string
+          description: string
+          engineer_id: string
+          engineer_name: string
+          fix_applied: string | null
+          id: string
+          issue_type: string
+          root_cause_category: string | null
+          status: string
+          ticket_number: string
+        }
+        Insert: {
+          algo_strategy?: string | null
+          analysis_notes?: string | null
+          client_name: string
+          closed_at?: string | null
+          closed_by?: string | null
+          closed_by_name?: string | null
+          created_at?: string
+          description?: string
+          engineer_id: string
+          engineer_name?: string
+          fix_applied?: string | null
+          id?: string
+          issue_type: string
+          root_cause_category?: string | null
+          status?: string
+          ticket_number: string
+        }
+        Update: {
+          algo_strategy?: string | null
+          analysis_notes?: string | null
+          client_name?: string
+          closed_at?: string | null
+          closed_by?: string | null
+          closed_by_name?: string | null
+          created_at?: string
+          description?: string
+          engineer_id?: string
+          engineer_name?: string
+          fix_applied?: string | null
+          id?: string
+          issue_type?: string
+          root_cause_category?: string | null
+          status?: string
+          ticket_number?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "engineer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +330,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "engineer"],
+    },
   },
 } as const
