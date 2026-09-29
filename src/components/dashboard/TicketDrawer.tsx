@@ -84,7 +84,7 @@ export function TicketDrawer({
         await uploadTicketFile({
           ticketId: ticket.id,
           ticketNumber: ticket.ticket_number,
-          file: pending[i].file,
+          file: pending[i]!.file,
           userId: session.userId,
           userName: session.name,
         });
