@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { supabase } from "@/integrations/supabase/client";
+import { createTicket } from "@/lib/tickets.function";
 import type { AppSession } from "@/lib/session";
 import {
   ALGO_STRATEGIES,
@@ -80,26 +80,16 @@ export function NewTicketDialog({
       if (!clientName.trim()) throw new Error("Client / broker name is required.");
       if (!issueType) throw new Error("Please choose an issue type.");
 
-      const { data: ticket, error } = await supabase
-        .from("tickets")
-        .insert({
-          ticket_number: safeNumber,
-          client_name: clientName.trim(),
-          issue_type: issueType,
-          algo_strategy: issueType === "Algo Order" ? algoStrategy || null : null,
-          description: description.trim(),
-          engineer_id: session.userId,
-          engineer_name: session.name,
-        })
-        .select()
-        .single();
+      const ticket = await createTicket({
+         data: {
+         ticket_number: safeNumber,
+         client_name: clientName.trim(),
+         issue_type: issueType,
+         algo_strategy: issueType === "Algo Order" ? algoStrategy || null : null,
+         description: description.trim(),
+         },
+         });
 
-      if (error) {
-        if (error.code === "23505" || error.message.includes("duplicate")) {
-          throw new Error(`Ticket ${safeNumber} already exists.`);
-        }
-        throw error;
-      }
 
       await logActivity({
         ticketId: ticket.id,

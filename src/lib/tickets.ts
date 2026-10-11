@@ -1,4 +1,9 @@
-import { supabase } from "@/integrations/supabase/client";
+import {
+  listTickets,
+  listFiles,
+  listActivity,
+  addActivity,
+} from "@/lib/tickets.function";
 
 export const LOG_BASE_PATH = "/IOBLOGS";
 
@@ -32,8 +37,8 @@ export type TicketRow = {
   algo_strategy: string | null;
   description: string;
   status: string;
-  engineer_id: string;
-  engineer_name: string;
+  Engineer_id: string;
+  Engineer_name: string;
   analysis_notes: string | null;
   root_cause_category: string | null;
   fix_applied: string | null;
@@ -71,38 +76,15 @@ export function formatBytes(bytes: number) {
 }
 
 export async function fetchTickets(): Promise<TicketWithFiles[]> {
-  const [{ data: tickets, error }, { data: files }] = await Promise.all([
-    supabase.from("tickets").select("*").order("created_at", { ascending: false }),
-    supabase.from("ticket_files").select("ticket_id"),
-  ]);
-  if (error) throw error;
-
-  const counts = new Map<string, number>();
-  for (const f of files ?? []) {
-    counts.set(f.ticket_id, (counts.get(f.ticket_id) ?? 0) + 1);
-  }
-
-  return (tickets ?? []).map((t) => ({ ...t, filesCount: counts.get(t.id) ?? 0 }));
+  return (await listTickets()) as TicketWithFiles[];
 }
 
 export async function fetchTicketFiles(ticketId: string) {
-  const { data, error } = await supabase
-    .from("ticket_files")
-    .select("*")
-    .eq("ticket_id", ticketId)
-    .order("created_at", { ascending: true });
-  if (error) throw error;
-  return data ?? [];
+  return listFiles({ data: { ticketId } });
 }
 
 export async function fetchTicketActivity(ticketId: string) {
-  const { data, error } = await supabase
-    .from("ticket_activity")
-    .select("*")
-    .eq("ticket_id", ticketId)
-    .order("created_at", { ascending: true });
-  if (error) throw error;
-  return data ?? [];
+  return listActivity({ data: { ticketId } });
 }
 
 export async function uploadTicketFile(opts: {
@@ -112,34 +94,15 @@ export async function uploadTicketFile(opts: {
   userId: string;
   userName: string;
 }) {
-  const safeTicket = sanitizeTicketNumber(opts.ticketNumber);
-  const safeName = sanitizeFileName(opts.file.name);
-  // Never overwrite: prefix a timestamp so repeat names coexist.
-  const stamped = `${Date.now()}-${safeName}`;
-  const storagePath = `${safeTicket}/${stamped}`;
-
-  const { error } = await supabase.storage
-    .from("ticket-logs")
-    .upload(storagePath, opts.file, { upsert: false });
-  if (error) throw error;
-
-  const { error: rowError } = await supabase.from("ticket_files").insert({
-    ticket_id: opts.ticketId,
-    file_name: safeName,
-    storage_path: storagePath,
-    size_bytes: opts.file.size,
-    uploaded_by: opts.userId,
-    uploaded_by_name: opts.userName,
-  });
-  if (rowError) throw rowError;
+  const res = await fetch(
+    `/api/upload?ticketId=${encodeURIComponent(opts.ticketId)}&name=${encodeURIComponent(opts.file.name)}`,
+    { method: "POST", body: opts.file, credentials: "same-origin" },
+  );
+  if (!res.ok) throw new Error("Upload failed");
 }
 
-export async function downloadTicketFile(storagePath: string, fileName: string) {
-  const { data, error } = await supabase.storage
-    .from("ticket-logs")
-    .createSignedUrl(storagePath, 120, { download: fileName });
-  if (error) throw error;
-  window.open(data.signedUrl, "_blank", "noopener");
+export async function downloadTicketFile(fileId: string) {
+  window.open(`/api/files/${encodeURIComponent(fileId)}`, "_blank", "noopener");
 }
 
 export async function logActivity(opts: {
@@ -149,12 +112,9 @@ export async function logActivity(opts: {
   action: string;
   detail?: string;
 }) {
-  await supabase.from("ticket_activity").insert({
-    ticket_id: opts.ticketId,
-    actor_id: opts.actorId,
-    actor_name: opts.actorName,
-    action: opts.action,
-    detail: opts.detail ?? "",
+  // The server uses the logged-in user; actorId/actorName are ignored.
+  await addActivity({
+    data: { ticketId: opts.ticketId, action: opts.action, detail: opts.detail ?? "" },
   });
 }
 
@@ -178,7 +138,7 @@ export function ticketsToCsv(rows: TicketWithFiles[]) {
       r.client_name,
       r.issue_type,
       r.algo_strategy ?? "",
-      r.engineer_name,
+      r.Engineer_name,
       r.filesCount,
       r.status,
       new Date(r.created_at).toISOString(),

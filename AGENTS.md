@@ -9,5 +9,5 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Protected pages live under src/routes/_authenticated/ (client-only gate) — Supabase session is in localStorage.
+- Protected pages live under src/routes/_authenticated/ (client-only gate) — mysql session is in localStorage.
 - Colors only via design tokens in src/styles.css — keeps dark/light theming consistent.
