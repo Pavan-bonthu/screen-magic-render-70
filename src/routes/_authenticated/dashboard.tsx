@@ -22,7 +22,7 @@ import { KpiCards } from "@/components/dashboard/KpiCards";
 import { NewTicketDialog } from "@/components/dashboard/NewTicketDialog";
 import { TicketDrawer } from "@/components/dashboard/TicketDrawer";
 import { Celebration } from "@/components/dashboard/Celebration";
-import { supabase } from "@/integrations/supabase/client";
+import { signOut } from "@/lib/auth.function";
 import { useSession } from "@/lib/session";
 import { useTheme } from "@/lib/theme";
 import { downloadCsv, fetchTickets, ticketsToCsv } from "@/lib/tickets";
@@ -63,17 +63,17 @@ function Dashboard() {
         (!q ||
           t.ticket_number.toLowerCase().includes(q) ||
           t.client_name.toLowerCase().includes(q) ||
-          t.engineer_name.toLowerCase().includes(q)),
+          t.Engineer_name.toLowerCase().includes(q)),
     );
   }, [tickets, view, search]);
 
   const selected = tickets.find((t) => t.id === selectedId) ?? null;
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    queryClient.clear();
-    navigate({ to: "/auth" });
-  };
+  await signOut();
+  queryClient.clear();
+  navigate({ to: "/auth" });
+};
 
   if (!session) {
     return (
@@ -88,9 +88,7 @@ function Dashboard() {
       <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur">
         <div className="flex items-center gap-4 px-4 py-3">
           <div className="flex items-center gap-2">
-            <div className="brand-gradient flex size-9 items-center justify-center rounded-lg text-primary-foreground">
-              <TrendingUp className="size-5" />
-            </div>
+            <img src="/omnelogo.png" alt="IOB LogDesk logo" className="size-9 object-contain" />
             <span className="font-display text-lg font-bold">IOB LogDesk</span>
           </div>
           <div className="ml-auto flex items-center gap-3">
@@ -143,7 +141,7 @@ function Dashboard() {
             <div className="relative min-w-60 flex-1">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search ticket no, client or engineer…"
+                placeholder="Search ticket no, client or Engineer…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -201,7 +199,7 @@ function Dashboard() {
                       <td className="px-4 py-3">{t.client_name}</td>
                       <td className="px-4 py-3">{t.issue_type}</td>
                       <td className="px-4 py-3">{t.algo_strategy ?? "—"}</td>
-                      <td className="px-4 py-3">{t.engineer_name}</td>
+                      <td className="px-4 py-3">{t.Engineer_name}</td>
                       <td className="px-4 py-3">{t.filesCount}</td>
                       <td className="px-4 py-3">
                         <Badge variant={t.status === "open" ? "secondary" : "default"} className="capitalize">

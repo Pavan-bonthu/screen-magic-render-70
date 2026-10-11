@@ -1,5 +1,5 @@
 -- Roles
-CREATE TYPE public.app_role AS ENUM ('admin', 'engineer');
+CREATE TYPE public.app_role AS ENUM ('admin', 'Engineer');
 
 CREATE TABLE public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -29,14 +29,14 @@ RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS
   SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role)
 $$;
 
--- New users become engineers and get a profile
+-- New users become Engineers and get a profile
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 BEGIN
   INSERT INTO public.profiles (id, full_name, email)
   VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)), COALESCE(NEW.email, ''))
   ON CONFLICT (id) DO NOTHING;
-  INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'engineer')
+  INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'Engineer')
   ON CONFLICT (user_id, role) DO NOTHING;
   RETURN NEW;
 END;
@@ -53,8 +53,8 @@ CREATE TABLE public.tickets (
   algo_strategy TEXT,
   description TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL DEFAULT 'open',
-  engineer_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  engineer_name TEXT NOT NULL DEFAULT '',
+  Engineer_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  Engineer_name TEXT NOT NULL DEFAULT '',
   analysis_notes TEXT,
   root_cause_category TEXT,
   fix_applied TEXT,
@@ -68,7 +68,7 @@ GRANT SELECT, INSERT, UPDATE ON public.tickets TO authenticated;
 GRANT ALL ON public.tickets TO service_role;
 ALTER TABLE public.tickets ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Authenticated can read tickets" ON public.tickets FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Engineers create own tickets" ON public.tickets FOR INSERT TO authenticated WITH CHECK (auth.uid() = engineer_id);
+CREATE POLICY "Engineers create own tickets" ON public.tickets FOR INSERT TO authenticated WITH CHECK (auth.uid() = Engineer_id);
 CREATE POLICY "Only admins update tickets" ON public.tickets FOR UPDATE TO authenticated
   USING (public.has_role(auth.uid(), 'admin')) WITH CHECK (public.has_role(auth.uid(), 'admin'));
 

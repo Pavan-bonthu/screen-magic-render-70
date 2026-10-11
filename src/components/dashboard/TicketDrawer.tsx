@@ -26,7 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { supabase } from "@/integrations/supabase/client";
+import { closeTicket } from "@/lib/tickets.function";
 import type { AppSession } from "@/lib/session";
 import {
   ROOT_CAUSE_CATEGORIES,
@@ -111,44 +111,39 @@ export function TicketDrawer({
   });
 
   const close = useMutation({
-    mutationFn: async () => {
-      if (!ticket) return;
-      if (notes.trim().length < 30) {
-        throw new Error("Analysis notes must be at least 30 characters.");
-      }
-      const { error } = await supabase
-        .from("tickets")
-        .update({
-          status: "closed",
-          analysis_notes: notes.trim(),
-          root_cause_category: category || null,
-          fix_applied: fix.trim() || null,
-          closed_by: session.userId,
-          closed_by_name: session.name,
-          closed_at: new Date().toISOString(),
-        })
-        .eq("id", ticket.id);
-      if (error) throw new Error("Only admins can close tickets.");
-      await logActivity({
-        ticketId: ticket.id,
-        actorId: session.userId,
-        actorName: session.name,
-        action: "Marked as done",
-        detail: category ? `Root cause: ${category}` : "Analysis recorded",
-      });
-    },
-    onSuccess: () => {
-      setMarkOpen(false);
-      setNotes("");
-      setCategory("");
-      setFix("");
-      queryClient.invalidateQueries({ queryKey: ["tickets"] });
-      activity.refetch();
-      onClosedTicket();
-      onClose();
-    },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not close ticket"),
-  });
+  mutationFn: async () => {
+    if (!ticket) return;
+    if (notes.trim().length < 30) {
+      throw new Error("Analysis notes must be at least 30 characters.");
+    }
+    await closeTicket({
+      data: {
+        id: ticket.id,
+        notes: notes.trim(),
+        category: category || null,
+        fix: fix.trim() || null,
+      },
+    });
+    await logActivity({
+      ticketId: ticket.id,
+      actorId: session.userId,
+      actorName: session.name,
+      action: "Marked as done",
+      detail: category ? `Root cause: ${category}` : "Analysis recorded",
+    });
+  },
+  onSuccess: () => {
+    setMarkOpen(false);
+    setNotes("");
+    setCategory("");
+    setFix("");
+    queryClient.invalidateQueries({ queryKey: ["tickets"] });
+    activity.refetch();
+    onClosedTicket();
+    onClose();
+  },
+  onError: (e) => toast.error(e instanceof Error ? e.message : "Could not close ticket"),
+});
 
   const isAdmin = session.role === "admin";
   const isOpen = ticket?.status === "open";
@@ -174,7 +169,7 @@ export function TicketDrawer({
 
               <div className="space-y-5 px-4 pb-8">
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <Field label="Engineer" value={ticket.engineer_name} />
+                  <Field label="Engineer" value={ticket.Engineer_name} />
                   <Field
                     label="Created"
                     value={format(new Date(ticket.created_at), "dd MMM yyyy, HH:mm")}
@@ -246,9 +241,7 @@ export function TicketDrawer({
                             variant="ghost"
                             className="size-7"
                             onClick={() =>
-                              downloadTicketFile(f.storage_path, f.file_name).catch(() =>
-                                toast.error("Could not open that file"),
-                              )
+                              downloadTicketFile(f.id).catch(() => toast.error("Could not open that file"))
                             }
                           >
                             <Download className="size-3.5" />

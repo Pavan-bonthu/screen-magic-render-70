@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Eye, EyeOff, Loader2, TrendingUp } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChartBackdrop } from "@/components/market/ChartBackdrop";
-import { supabase } from "@/integrations/supabase/client";
+import { getMe, signIn, signUp } from "@/lib/auth.function";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -37,9 +37,11 @@ function AuthPage() {
   useEffect(() => {
     const saved = window.localStorage.getItem("iob-logdesk-remember");
     if (saved) setEmail(saved);
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/dashboard" });
-    });
+    getMe()
+      .then((me) => {
+        if (me) navigate({ to: "/dashboard" });
+      })
+      .catch(() => {});
   }, [navigate]);
 
   const submit = async (e: React.FormEvent) => {
@@ -48,8 +50,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signin") {
-        const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-        if (error) throw error;
+        await signIn({ data: { email: email.trim(), password } });
         if (remember) window.localStorage.setItem("iob-logdesk-remember", email.trim());
         else window.localStorage.removeItem("iob-logdesk-remember");
         await queryClient.invalidateQueries({ queryKey: ["app-session"] });
@@ -57,18 +58,10 @@ function AuthPage() {
       } else {
         if (name.trim().length < 2) throw new Error("Please enter your full name.");
         if (password.length < 8) throw new Error("Password must be at least 8 characters.");
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: { data: { full_name: name.trim() }, emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        if (data.session) {
-          navigate({ to: "/dashboard" });
-        } else {
-          toast.success("Check your inbox to confirm your email, then sign in.");
-          setMode("signin");
-        }
+        await signUp({ data: { name: name.trim(), email: email.trim(), password } });
+        toast.success("Account created. Please sign in.");
+        setPassword("");
+        setMode("signin");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -82,9 +75,7 @@ function AuthPage() {
       <div className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:p-12">
         <ChartBackdrop />
         <div className="relative flex items-center gap-3">
-          <div className="brand-gradient flex size-11 items-center justify-center rounded-xl text-primary-foreground">
-            <TrendingUp className="size-6" />
-          </div>
+          <img src="/omnelogo.png" alt="IOB LogDesk logo" className="h-11 w-auto" />
           <span className="font-display text-2xl font-bold text-sidebar-foreground">IOB LogDesk</span>
         </div>
         <div className="relative animate-rise-in">
@@ -155,7 +146,7 @@ function AuthPage() {
             {mode === "signin" ? "Sign in" : "Create account"}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
-            {mode === "signin" ? "New engineer?" : "Already have an account?"}{" "}
+            {mode === "signin" ? "New Engineer?" : "Already have an account?"}{" "}
             <button
               type="button"
               className="font-medium text-primary hover:underline"
