@@ -5,13 +5,13 @@ import {
   addActivity,
 } from "@/lib/tickets.function";
 
-export const LOG_BASE_PATH = "/IOBLOGS";
+export const LOG_BASE_PATH = "/IOB_LOG";
 
 export const ISSUE_TYPES = [
   "Algo Order",
-  "Fixed Order",
-  "Connectivity",
-  "Market Data",
+  "Fix Order",
+  "Adapter issue",
+  "Normal order",
   "Other",
 ] as const;
 
