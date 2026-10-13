@@ -12,6 +12,7 @@ export const ISSUE_TYPES = [
   "Fix Order",
   "Adapter issue",
   "Normal order",
+  "stg issue",
   "Other",
 ] as const;
 
