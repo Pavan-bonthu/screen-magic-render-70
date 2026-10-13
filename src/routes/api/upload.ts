@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/upload")({
 
         const ticketDir = t[0].ticket_number.replace(/[^A-Za-z0-9_-]/g, "");
         const rel = `${ticketDir}/${Date.now()}-${name}`;
-        const abs = path.join(process.env["LOG_ROOT"] ?? "/IOBLOGS", rel);
+        const abs = path.join(process.env["LOG_ROOT"] ?? "/IOB_LOG", rel);
         await mkdir(path.dirname(abs), { recursive: true });
 
         await pipeline(Readable.fromWeb(request.body as any), createWriteStream(abs));

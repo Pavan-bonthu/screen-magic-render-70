@@ -244,7 +244,7 @@ export function NewTicketDialog({
             <Textarea
               id="desc"
               rows={3}
-              maxLength={2000}
+              maxLength={5000}
               placeholder="What the client reported, order IDs, timestamps…"
               value={description}
               onChange={(e) => setDescription(e.target.value)}

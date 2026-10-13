@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/files/$id")({
         const path = await import("node:path");
         const [rows] = await pool.query<any[]>("SELECT file_name, storage_path FROM ticket_files WHERE id=?", [params.id]);
         if (!rows[0]) return new Response("Not found", { status: 404 });
-        const abs = path.join(process.env["LOG_ROOT"] ?? "/IOBLOGS", rows[0].storage_path);
+        const abs = path.join(process.env["LOG_ROOT"] ?? "/IOB_LOG", rows[0].storage_path);
         return new Response(Readable.toWeb(createReadStream(abs)) as any, {
           headers: {
             "Content-Disposition": `attachment; filename="${rows[0].file_name}"`,
