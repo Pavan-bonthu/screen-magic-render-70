@@ -30,7 +30,7 @@ export const signIn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { pool, newToken } = await import("@/server/db.server");
     const { setCookie } = await import("@tanstack/react-start/server");
-    const bcrypt = (await import("bcryptjs")).default;
+    const bcrypt = await import("bcryptjs");
     const [rows] = await pool.query<any[]>("SELECT * FROM users WHERE email=?", [data.email.toLowerCase()]);
     const u = rows[0];
     if (!u || !(await bcrypt.compare(data.password, u.password_hash))) {
