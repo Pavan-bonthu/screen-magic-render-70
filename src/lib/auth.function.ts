@@ -11,7 +11,7 @@ export const signUp = createServerFn({ method: "POST" })
   .inputValidator(z.object({ name: z.string().min(2).max(80), email: z.string().email(), password: z.string().min(8) }))
   .handler(async ({ data }) => {
     const { pool } = await import("@/server/db.server");
-    const bcrypt = (await import("bcryptjs")).default;
+    const bcrypt = await import("bcryptjs")
     const { randomUUID } = await import("node:crypto");
     try {
       await pool.query(
