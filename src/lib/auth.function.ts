@@ -41,10 +41,11 @@ export const signIn = createServerFn({ method: "POST" })
       "INSERT INTO sessions (token,user_id,expires_at) VALUES (?,?,DATE_ADD(UTC_TIMESTAMP(), INTERVAL 7 DAY))",
       [token, u.id],
     );
-    setCookie("sid", token, { httpOnly: true, sameSite: "lax", secure: process.env["NODE_ENV"] === "production", path: "/", maxAge: 7 * 86400 });
+    setCookie("sid", token, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 7 * 86400 });
     return { ok: true };
   });
-
+//  setCookie("sid", token, { httpOnly: true, sameSite: "lax", secure: process.env["NODE_ENV"] === "production", path: "/", maxAge: 7 * 86400 });
+   // return { ok: true };//
 export const signOut = createServerFn({ method: "POST" }).handler(async () => {
   const { pool } = await import("@/server/db.server");
   const { getCookie, deleteCookie } = await import("@tanstack/react-start/server");
