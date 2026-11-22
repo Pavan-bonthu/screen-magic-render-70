@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
+import { Route as AuthenticatedTwapTicketNumberRouteImport } from './routes/_authenticated/twap.$ticketNumber'
 import { Route as ApiFilesIdRouteImport } from './routes/api/files.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -40,6 +41,12 @@ const ApiUploadRoute = ApiUploadRouteImport.update({
   path: '/api/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTwapTicketNumberRoute =
+  AuthenticatedTwapTicketNumberRouteImport.update({
+    id: '/twap/$ticketNumber',
+    path: '/twap/$ticketNumber',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiFilesIdRoute = ApiFilesIdRouteImport.update({
   id: '/api/files/$id',
   path: '/api/files/$id',
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/upload': typeof ApiUploadRoute
+  '/twap/$ticketNumber': typeof AuthenticatedTwapTicketNumberRoute
   '/api/files/$id': typeof ApiFilesIdRoute
 }
 export interface FileRoutesByTo {
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/upload': typeof ApiUploadRoute
+  '/twap/$ticketNumber': typeof AuthenticatedTwapTicketNumberRoute
   '/api/files/$id': typeof ApiFilesIdRoute
 }
 export interface FileRoutesById {
@@ -67,13 +76,26 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/api/upload': typeof ApiUploadRoute
+  '/_authenticated/twap/$ticketNumber': typeof AuthenticatedTwapTicketNumberRoute
   '/api/files/$id': typeof ApiFilesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/api/upload' | '/api/files/$id'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/api/upload'
+    | '/twap/$ticketNumber'
+    | '/api/files/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/api/upload' | '/api/files/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/api/upload'
+    | '/twap/$ticketNumber'
+    | '/api/files/$id'
   id:
     | '__root__'
     | '/'
@@ -81,6 +103,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/dashboard'
     | '/api/upload'
+    | '/_authenticated/twap/$ticketNumber'
     | '/api/files/$id'
   fileRoutesById: FileRoutesById
 }
@@ -129,6 +152,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/twap/$ticketNumber': {
+      id: '/_authenticated/twap/$ticketNumber'
+      path: '/twap/$ticketNumber'
+      fullPath: '/twap/$ticketNumber'
+      preLoaderRoute: typeof AuthenticatedTwapTicketNumberRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/files/$id': {
       id: '/api/files/$id'
       path: '/api/files/$id'
@@ -141,10 +171,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedTwapTicketNumberRoute: typeof AuthenticatedTwapTicketNumberRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedTwapTicketNumberRoute: AuthenticatedTwapTicketNumberRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
