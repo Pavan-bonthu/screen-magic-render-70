@@ -208,8 +208,9 @@ export function TicketDrawer({
                   {serverPathFor(ticket.ticket_number)}
                 </div>
                 
-                <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-2.5 font-mono text-xs text-muted-foreground">
                 ticket.issue_type === "Algo Order" && ticket.algo_strategy === "TWAP" && (
+                <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-2.5 font-mono text-xs text-muted-foreground">
+                
                   <Button asChild size="sm" variant="secondary" className="mt-2 w-fit">
                         <Link to="/twap/$ticketNumber" params={{ ticketNumber: ticket.ticket_number }}>
                         TWAP Analysis
