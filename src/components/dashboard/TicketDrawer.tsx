@@ -167,13 +167,8 @@ export function TicketDrawer({
                   {ticket.client_name} · {ticket.issue_type}
                   {ticket.algo_strategy ? ` · ${ticket.algo_strategy}` : ""}
                 </SheetDescription>
-                {ticket.issue_type === "Algo Order" && ticket.algo_strategy === "TWAP" && (
-                  <Button asChild size="sm" variant="secondary" className="mt-2 w-fit">
-                        <Link to="/twap/$ticketNumber" params={{ ticketNumber: ticket.ticket_number }}>
-                        TWAP Analysis
-                        </Link>
-                          </Button>
-  )}
+                
+
               </SheetHeader>
 
               <div className="space-y-5 px-4 pb-8">
@@ -208,8 +203,8 @@ export function TicketDrawer({
                   {serverPathFor(ticket.ticket_number)}
                 </div>
                 
-                ticket.issue_type === "Algo Order" && ticket.algo_strategy === "TWAP" && (
-                <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-2.5 font-mono text-xs text-muted-foreground">
+                {ticket.issue_type === "Algo Order" && 
+                ticket.algo_strategy === "TWAP" && (
                 
                   <Button asChild size="sm" variant="secondary" className="mt-2 w-fit">
                         <Link to="/twap/$ticketNumber" params={{ ticketNumber: ticket.ticket_number }}>
@@ -217,7 +212,7 @@ export function TicketDrawer({
                         </Link>
                           </Button>
 
-                </div>
+                )}
 
                 {ticket.analysis_notes ? (
                   <div className="rounded-xl border border-success/40 bg-success/10 p-3">
