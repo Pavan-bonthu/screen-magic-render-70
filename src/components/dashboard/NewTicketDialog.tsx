@@ -225,17 +225,7 @@ export function NewTicketDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                {algoStrategy === "TWAP" ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={!sanitizeTicketNumber(ticketNumber)}
-                    onClick={() =>
-                      window.open(`/twap/$encodeURIComponent(sanitizeTicketNumber (ticketNumber))}`,"_blank")}
-                  >
-                    <Sparkles className="size-4" /> TWAP Analyis
-                  </Button>
-                    ) : (
+            
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
@@ -246,7 +236,7 @@ export function NewTicketDialog({
                   </TooltipTrigger>
                   <TooltipContent>Coming soon — automated strategy log analysis</TooltipContent>
                 </Tooltip>
-                    )}
+                    
               </div>
             </div>
           ) : null}

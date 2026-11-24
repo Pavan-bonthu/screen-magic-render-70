@@ -41,6 +41,8 @@ import {
   type TicketWithFiles,
 } from "@/lib/tickets";
 import { FileDropzone, type PendingFile } from "./FileDropzone";
+import { Link } from "@tanstack/react-router";
+
 
 export function TicketDrawer({
   ticket,
@@ -165,6 +167,13 @@ export function TicketDrawer({
                   {ticket.client_name} · {ticket.issue_type}
                   {ticket.algo_strategy ? ` · ${ticket.algo_strategy}` : ""}
                 </SheetDescription>
+                {ticket.issue_type === "Algo Order" && ticket.algo_strategy === "TWAP" && (
+                  <Button asChild size="sm" variant="secondary" className="mt-2 w-fit">
+                        <Link to="/twap/$ticketNumber" params={{ ticketNumber: ticket.ticket_number }}>
+                        TWAP Analysis
+                        </Link>
+                          </Button>
+  )}
               </SheetHeader>
 
               <div className="space-y-5 px-4 pb-8">
