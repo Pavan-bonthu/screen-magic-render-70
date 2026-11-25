@@ -142,7 +142,7 @@ function TwapAnalysisPage() {
               Run this on the log server, then refresh:
             </p>
             <code className="mt-3 inline-block rounded-md bg-muted px-3 py-2 font-mono text-xs">
-              python3 twap_export.py --ticket {ticketNumber} --upload
+              python3 twaptest.py --ticket {ticketNumber} --upload
             </code>
           </Card>
         ) : (
