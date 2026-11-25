@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/upload")({
         if (!t[0] || !request.body) return new Response("Bad request", { status: 400 });
 
         const ticketDir = t[0].ticket_number.replace(/[^A-Za-z0-9_-]/g, "");
-        const rel = `${ticketDir}/${Date.now()}-${name}`;
+        const rel = `${ticketDir}/${name}`;
         const abs = path.join(process.env["LOG_ROOT"] ?? "/IOB_LOG", rel);
         await mkdir(path.dirname(abs), { recursive: true });
 

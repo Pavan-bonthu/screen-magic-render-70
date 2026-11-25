@@ -225,6 +225,7 @@ export function NewTicketDialog({
                     ))}
                   </SelectContent>
                 </Select>
+            
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
@@ -235,6 +236,7 @@ export function NewTicketDialog({
                   </TooltipTrigger>
                   <TooltipContent>Coming soon — automated strategy log analysis</TooltipContent>
                 </Tooltip>
+                    
               </div>
             </div>
           ) : null}
